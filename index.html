@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Грамматическая лаборатория — Имя существительное</title>
+<style>
+:root{--navy:#18324b;--teal:#28a6a0;--coral:#ef8c79;--cream:#fffaf0;--gold:#f4c95d;--ink:#243447}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:linear-gradient(135deg,#fff8e9,#e8f6f3);min-height:100vh}
+header{background:var(--navy);color:white;padding:22px 18px;text-align:center}
+header .eyebrow{color:#aee6dc;letter-spacing:2px;text-transform:uppercase;font-size:12px;font-weight:bold}
+h1{margin:8px 0 5px;font-size:clamp(25px,4vw,38px)}
+header p{margin:0;color:#dce9ef}
+.wrap{max-width:900px;margin:26px auto;padding:0 16px 40px}
+.progress-shell{height:10px;background:#d9e5e3;border-radius:20px;overflow:hidden;margin:12px 0 22px}
+#progress{height:100%;width:0;background:linear-gradient(90deg,var(--teal),var(--gold));transition:width .3s}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;color:#526477;font-weight:bold}
+.card{background:rgba(255,255,255,.94);border:1px solid #e8e5da;border-radius:24px;padding:clamp(20px,4vw,34px);box-shadow:0 14px 35px #29455a14}
+.screen{display:none}.screen.active{display:block}
+h2{color:var(--navy);margin:0 0 12px;font-size:26px}
+.lead{line-height:1.6;color:#536476}
+.stage{display:inline-block;background:#e7f5f2;color:#167d78;padding:7px 12px;border-radius:30px;font-weight:bold;font-size:13px;margin-bottom:14px}
+.question{font-size:22px;line-height:1.4;font-weight:bold;margin:20px 0}
+.choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+button{font:inherit;cursor:pointer;border:0;border-radius:14px;padding:14px 17px;font-weight:bold;transition:transform .15s,box-shadow .15s}
+button:hover{transform:translateY(-2px);box-shadow:0 7px 16px #18324b1c}
+.choice{background:#f1f6f7;color:var(--navy);border:2px solid #dce9e9;min-height:58px}
+.choice:hover{border-color:var(--teal);background:#e9f8f5}
+.choice:disabled{cursor:default;opacity:.78;transform:none}
+.primary{background:var(--teal);color:white;margin-top:18px}
+.secondary{background:#fff0e9;color:#a65343}
+.feedback{min-height:52px;margin-top:17px;padding:13px 15px;border-radius:13px;line-height:1.45;display:none}
+.feedback.show{display:block}.good{background:#e6f6ec;color:#21633b}.bad{background:#fff0e9;color:#934b3d}
+.example{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap;margin:20px 0}
+.tile{background:#fff9e9;border:2px solid #f2dfb4;border-radius:18px;padding:18px 22px;min-width:120px;text-align:center}
+.emoji{font-size:42px;display:block;margin-bottom:7px}
+.word{font-size:21px;font-weight:bold;color:var(--navy)}
+.small{font-size:13px;color:#718092;margin-top:5px}
+.score{font-size:48px;color:var(--teal);font-weight:bold;margin:12px 0}
+footer{text-align:center;color:#718092;font-size:12px;margin-top:18px}
+@media(max-width:520px){.question{font-size:19px}.card{border-radius:18px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Интерактивный тренажёр</div>
+  <h1>Грамматическая лаборатория</h1>
+  <p>Миссия: раскрыть секреты имени существительного</p>
+</header>
+<main class="wrap">
+  <div class="topline"><span id="levelLabel">Уровень 1 из 4</span><span id="scoreLabel">Баллы: 0</span></div>
+  <div class="progress-shell"><div id="progress"></div></div>
+
+  <section class="card screen active" id="start">
+    <span class="stage">НАЧАЛО МИССИИ</span>
+    <h2>Добро пожаловать в лабораторию!</h2>
+    <p class="lead">Тебя ждут четыре коротких испытания. Научись находить имена существительные, определять род и число, а также отличать собственные имена от нарицательных.</p>
+    <div class="example">
+      <div class="tile"><span class="emoji">🐈</span><span class="word">кот</span><div class="small">кто?</div></div>
+      <div class="tile"><span class="emoji">📚</span><span class="word">книга</span><div class="small">что?</div></div>
+    </div>
+    <button class="primary" onclick="startGame()">Начать игру →</button>
+  </section>
+
+  <section class="card screen" id="game">
+    <span class="stage" id="stageName">ИСПЫТАНИЕ 1</span>
+    <h2 id="gameTitle">Найди существительное</h2>
+    <div class="question" id="question"></div>
+    <div class="choices" id="choices"></div>
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+    <button class="primary" id="nextBtn" onclick="nextQuestion()" style="display:none">Дальше →</button>
+  </section>
+
+  <section class="card screen" id="result">
+    <span class="stage">МИССИЯ ЗАВЕРШЕНА</span>
+    <h2 id="resultTitle">Отличная работа!</h2>
+    <div class="score" id="finalScore">0 / 8</div>
+    <p class="lead" id="resultText"></p>
+    <button class="primary" onclick="restart()">Сыграть ещё раз ↻</button>
+  </section>
+  <footer>Учебная мини-игра по теме «Имя существительное»</footer>
+</main>
+<script>
+const rounds=[
+ {name:"Испытание 1 · Кто? Что?",title:"Определи имя существительное",items:[
+  {q:"Какое слово обозначает предмет и отвечает на вопрос «кто?» или «что?»",a:["бежать","зелёный","учитель"],correct:2,why:"Учитель — имя существительное: отвечает на вопрос «кто?»."},
+  {q:"Выбери имя существительное:",a:["красивый","тетрадь","читать"],correct:1,why:"Тетрадь — предмет, отвечает на вопрос «что?»."}]},
+ {name:"Испытание 2 · Род",title:"Определи род существительного",items:[
+  {q:"Какого рода слово «карандаш»?",a:["Мужской","Женский","Средний"],correct:0,why:"Мой карандаш — мужской род."},
+  {q:"Какого рода слово «улица»?",a:["Мужской","Женский","Средний"],correct:1,why:"Моя улица — женский род."}]},
+ {name:"Испытание 3 · Число",title:"Единственное или множественное?",items:[
+  {q:"В каком числе употреблено слово «деревья»?",a:["Единственное","Множественное"],correct:1,why:"Деревья — множественное число: предметов несколько."},
+  {q:"Выбери слово в единственном числе:",a:["окна","цветы","облако"],correct:2,why:"Облако — один предмет, единственное число."}]},
+ {name:"Испытание 4 · Виды существительных",title:"Собственное или нарицательное?",items:[
+  {q:"Какое слово является именем собственным?",a:["город","Астана","река"],correct:1,why:"Астана — название конкретного города, имя собственное."},
+  {q:"Какое слово является нарицательным?",a:["Айгүл","Иртыш","девочка"],correct:2,why:"Девочка — общее название, нарицательное существительное."}]}
+];
+let round=0,index=0,score=0,answered=false;
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+function startGame(){round=0;index=0;score=0;updateTop();show('game');render()}
+function updateTop(){document.getElementById('scoreLabel').textContent='Баллы: '+score;document.getElementById('levelLabel').textContent='Уровень '+(round+1)+' из 4';document.getElementById('progress').style.width=((round*2+index)/8*100)+'%'}
+function render(){
+ answered=false;const r=rounds[round],item=r.items[index];
+ document.getElementById('stageName').textContent=r.name;document.getElementById('gameTitle').textContent=r.title;document.getElementById('question').textContent=item.q;
+ const c=document.getElementById('choices');c.innerHTML='';
+ item.a.forEach((v,i)=>{const b=document.createElement('button');b.className='choice';b.textContent=v;b.onclick=()=>answer(i);c.appendChild(b)});
+ const f=document.getElementById('feedback');f.className='feedback';f.textContent='';
+ document.getElementById('nextBtn').style.display='none';updateTop();
+}
+function answer(i){
+ if(answered)return;answered=true;const item=rounds[round].items[index],ok=i===item.correct;
+ if(ok)score++;
+ document.querySelectorAll('.choice').forEach((b,n)=>{b.disabled=true;if(n===item.correct)b.style.borderColor='#28a6a0';if(n===i&&!ok)b.style.borderColor='#ef8c79'});
+ const f=document.getElementById('feedback');f.className='feedback show '+(ok?'good':'bad');f.textContent=(ok?'Верно! ⭐ ':'Пока не совсем. ') + item.why;
+ document.getElementById('scoreLabel').textContent='Баллы: '+score;document.getElementById('nextBtn').style.display='inline-block';
+ document.getElementById('nextBtn').textContent=(round===3&&index===1)?'Узнать результат →':'Следующее задание →';
+}
+function nextQuestion(){if(!answered)return;if(index===1){index=0;if(round===3){finish();return}round++}else index++;render()}
+function finish(){
+ show('result');document.getElementById('progress').style.width='100%';document.getElementById('finalScore').textContent=score+' / 8';
+ let title='Хорошее начало!';let msg='Повтори правила и попробуй ещё раз — практика поможет закрепить знания.';
+ if(score>=7){title='Блестящая работа! 🏆';msg='Ты отлично справился(лась) с испытаниями и уверенно ориентируешься в теме имени существительного.'}
+ else if(score>=5){title='Отличный результат! ⭐';msg='Ты хорошо усвоил(а) тему. Повтори задания, в которых были ошибки, чтобы стать ещё увереннее.'}
+ document.getElementById('resultTitle').textContent=title;document.getElementById('resultText').textContent=msg;
+}
+function restart(){show('start');document.getElementById('progress').style.width='0';document.getElementById('scoreLabel').textContent='Баллы: 0';document.getElementById('levelLabel').textContent='Уровень 1 из 4'}
+</script>
+</body>
+</html>
